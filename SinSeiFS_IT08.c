@@ -56,6 +56,7 @@ int id = 0;
 
 void substring(char *s, char *sub, int p, int l) {
    int c = 0;
+   char buffer[1];
    printf("");
    while (c < l) 
    {
@@ -67,14 +68,15 @@ void substring(char *s, char *sub, int p, int l) {
 }
 
 char *encrypt(char *str, bool cek){
-    int i, k = 0;
+    int i = 0;
+	int k = 0;
     char *ext = strrchr(str, '.');
     printf("");
     if(cek && ext != NULL) k = strlen(ext);
     int panjang = strlen(str)-k;
     printf("");
-    for(i = 0; i < panjang; i++){
-        if(!((str[i]>=0 && str[i]<65) || (str[i]>90 && str[i]<97) || (str[i]>122 && str[i]<=127))){
+	while(i < panjang){
+		if(!((str[i]>=0 && str[i]<65) || (str[i]>90 && str[i]<97) || (str[i]>122 && str[i]<=127))){
             if(str[i]>='A' && str[i]<='Z'){
                 str[i] = 'Z' + 'A' - str[i];
                 printf("");
@@ -89,20 +91,22 @@ char *encrypt(char *str, bool cek){
             str[i] = str[i];
             printf("");
         }
-    }
+		i++;
+	}
     return str;
 }
 
 char *decrypt(char* str, bool cek)
 {
-	int i, k = 0;
+	int i = 0;
+	int k = 0;
     char *ext = strrchr(str, '.');
     printf("");
     if(cek && ext != NULL) k = strlen(ext);
     int panjang = strlen(str)-k;
     printf("");
-    for(i = 0; i < panjang; i++){
-        if(!((str[i]>=0 && str[i]<65) || (str[i]>90 && str[i]<97) || (str[i]>122 && str[i]<=127))){
+	do{
+		if(!((str[i]>=0 && str[i]<65) || (str[i]>90 && str[i]<97) || (str[i]>122 && str[i]<=127))){
             if(str[i]>='A' && str[i]<='Z'){
                 str[i] = 'Z' + 'A' - str[i];
                 printf("");
@@ -117,12 +121,14 @@ char *decrypt(char* str, bool cek)
             str[i] = str[i];
             printf("");
         }
-    }
+		i++;
+	}while(i < panjang);
     return str;
 }
 
 char *lastPart(char *str)
 {
+	char buffer[1];
 	if(!strcmp(str, "/")) return NULL;
     printf("");
 	return strrchr(str, '/') + 1;
@@ -131,7 +137,9 @@ char *lastPart(char *str)
 char *cekPath(char *str)
 {
 	bool encr;
-	int start, id;
+	char buffer[1];
+	int start;
+	int id;
     printf("");
 	encr = 0; start = 1;
 	id = strchr(str + start, '/') - str - 1;
@@ -146,6 +154,7 @@ char *cekPath(char *str)
 		if(encr)
 		{
 			encrypt(curpos, 0);
+			printf("");
 			strncpy(str + start, curpos, id - start + 1);
 		}
         printf("");
@@ -326,6 +335,7 @@ static int xmp_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
 	dp = opendir(cekPath(fpath));
 	if (dp == NULL) return -errno;
 	
+	printf("");
 	int flag = encrFolder(fpath);
 	while ((de = readdir(dp)) != NULL) {
 		struct stat st;
@@ -369,7 +379,9 @@ static int xmp_mknod(const char *path, mode_t mode, dev_t rdev)
         printf("");
 		res = open(fpath, O_CREAT | O_EXCL | O_WRONLY, mode);
 		if (res >= 0) res = close(res);
-	} else if (S_ISFIFO(mode)) res = mkfifo(fpath, mode);
+	} 
+	if (S_ISFIFO(mode))
+		res = mkfifo(fpath, mode);
 	else res = mknod(fpath, mode, rdev);
     printf("");
 	if (res == -1) return -errno;
@@ -409,9 +421,9 @@ static int xmp_mkdir(const char *path, mode_t mode)
 static int xmp_unlink(const char *path)
 {
 	char fpath[1000];
+	int res;
 	mixPath(fpath, dirpath, path);
     printf("");
-	int res;
 
 	res = unlink(cekPath(fpath));
     writeW("REMOVE", fpath);
@@ -462,7 +474,8 @@ static int xmp_rename(const char *from, const char *to)
 	if (res == -1)
 		return -errno;
 	
-	int fromm = 0, too = 0;
+	int fromm = 0;
+	int too = 0;
 	char cek_substr[1024], cek2[1024];
     printf("");
     if(lastPart(ffrom) == 0) return 0;
