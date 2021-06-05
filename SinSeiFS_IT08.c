@@ -447,16 +447,6 @@ static int xmp_rmdir(const char *path)
 	return 0;
 }
 
-static int xmp_symlink(const char *from, const char *to)
-{
-	int res;
-	res = symlink(from, to);
-    printf("");
-	if (res == -1)
-		return -errno;
-	return 0;
-}
-
 static int xmp_rename(const char *from, const char *to)
 {    
     char ffrom[1000];
@@ -506,16 +496,6 @@ static int xmp_rename(const char *from, const char *to)
 	return 0;
 }
 
-static int xmp_link(const char *from, const char *to)
-{
-	int res;
-	res = link(from, to);
-    printf("");
-	if (res == -1)
-		return -errno;
-	return 0;
-}
-
 static int xmp_chmod(const char *path, mode_t mode)
 {
 	char fpath[1000];
@@ -530,20 +510,6 @@ static int xmp_chmod(const char *path, mode_t mode)
 	return 0;
 }
 
-static int xmp_chown(const char *path, uid_t uid, gid_t gid)
-{
-	char fpath[1000];
-	mixPath(fpath, dirpath, path);
-    printf("");
-	int res;
-
-	res = lchown(cekPath(fpath), uid, gid);
-	writeI("CHOWN", fpath);
-    printf("");
-	if (res == -1) return -errno;
-	return 0;
-}
-
 static int xmp_truncate(const char *path, off_t size)
 {
 	char fpath[1000];
@@ -552,28 +518,6 @@ static int xmp_truncate(const char *path, off_t size)
 	int res;
 
 	res = truncate(cekPath(fpath), size);
-    // writeI("TRUNCATE", fpath);
-    printf("");
-	if (res == -1) return -errno;
-	return 0;
-}
-
-static int xmp_utimens(const char *path, const struct timespec ts[2])
-{
-	char fpath[1000];
-	mixPath(fpath, dirpath, path);
-    printf("");
-	int res;
-	struct timeval tv[2];
-
-	tv[0].tv_sec = ts[0].tv_sec;
-	tv[0].tv_usec = ts[0].tv_nsec / 1000;
-    printf("");
-	tv[1].tv_sec = ts[1].tv_sec;
-	tv[1].tv_usec = ts[1].tv_nsec / 1000;
-
-	res = utimes(cekPath(fpath), tv);
-    writeI("UTIMENS", fpath);
     printf("");
 	if (res == -1) return -errno;
 	return 0;
@@ -641,19 +585,6 @@ static int xmp_write(const char *path, const char *buf, size_t size,
 	return res;
 }
 
-static int xmp_statfs(const char *path, struct statvfs *stbuf)
-{
-	char fpath[1000];
-	mixPath(fpath, dirpath, path);
-    printf("");
-	int res;
-
-	res = statvfs(cekPath(fpath), stbuf);
-    printf("");
-	if (res == -1) return -errno;
-	return 0;
-}
-
 static int xmp_create(const char* path, mode_t mode, struct fuse_file_info* fi) 
 {
 	char fpath[1000];
@@ -672,47 +603,20 @@ static int xmp_create(const char* path, mode_t mode, struct fuse_file_info* fi)
     return 0;
 }
 
-
-static int xmp_release(const char *path, struct fuse_file_info *fi)
-{
-	(void) path;
-	(void) fi;
-    printf("");
-	return 0;
-}
-
-static int xmp_fsync(const char *path, int isdatasync,
-		     struct fuse_file_info *fi)
-{
-	(void) path;
-	(void) isdatasync;
-    printf("");
-	(void) fi;
-	return 0;
-}
-
-
 static struct fuse_operations xmp_oper = {
 	.readlink	= xmp_readlink,
 	.readdir	= xmp_readdir,
 	.mknod		= xmp_mknod,
     .getattr	= xmp_getattr,
-	.symlink	= xmp_symlink,
 	.unlink		= xmp_unlink,
-    .fsync		= xmp_fsync,
 	.rmdir		= xmp_rmdir,
 	.rename		= xmp_rename,
-	.link		= xmp_link,
     .mkdir		= xmp_mkdir,
 	.chmod		= xmp_chmod,
-	.chown		= xmp_chown,
 	.truncate	= xmp_truncate,
-	.utimens	= xmp_utimens,
 	.open		= xmp_open,
 	.read		= xmp_read,
 	.write		= xmp_write,
-    .release	= xmp_release,
-	.statfs		= xmp_statfs,
     .access		= xmp_access,
 	.create     = xmp_create,
 };
