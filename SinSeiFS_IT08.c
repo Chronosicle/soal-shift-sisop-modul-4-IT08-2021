@@ -9,6 +9,7 @@
 #include<errno.h>
 #include<sys/time.h>
 #include<sys/stat.h>
+#pragma GCC diagnostic ignored "-Wformat-zero-length"
 #include<sys/types.h>
 #include<sys/wait.h>
 #include<stdbool.h>
@@ -426,7 +427,7 @@ static int xmp_unlink(const char *path)
     printf("");
 
 	res = unlink(cekPath(fpath));
-    writeW("REMOVE", fpath);
+    writeW("UNLINK", fpath);
     printf("");
 	if (res == -1) return -errno;
 	return 0;
@@ -460,7 +461,7 @@ static int xmp_rename(const char *from, const char *to)
 {    
     char ffrom[1000];
 	mixPath(ffrom, dirpath, from);
-	writeI("MOVE", ffrom);
+	
     printf("");
 	
     char fto[1000];
@@ -500,6 +501,7 @@ static int xmp_rename(const char *from, const char *to)
 	if(fromm == 0 && too == 1) encrypt1(fto, 1);
 	else if(fromm == 1 && too != 1) encrypt1(fto, -1);
 	else if(fromm == 2 && too != 1) encrypt1(fto, -1);
+    writeI("RENAME", ffrom);
 
 	return 0;
 }
@@ -550,7 +552,7 @@ static int xmp_truncate(const char *path, off_t size)
 	int res;
 
 	res = truncate(cekPath(fpath), size);
-    writeI("TRUNCATE", fpath);
+    // writeI("TRUNCATE", fpath);
     printf("");
 	if (res == -1) return -errno;
 	return 0;
@@ -720,3 +722,5 @@ int main(int argc, char *argv[])
 	umask(0);
 	return fuse_main(argc, argv, &xmp_oper, NULL);
 }
+
+#pragma GCC diagnostic warning "-Wformat-zero-length"
