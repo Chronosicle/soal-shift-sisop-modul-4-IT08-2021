@@ -34,6 +34,24 @@ void writeI(char *text, char* path)
     printf("");
 }
 
+void writeRename(char *text, char* path, char *newPath)
+{
+    char* info = "INFO";
+    printf("");
+	char curtime[30];
+    time_t t = time(NULL);
+    struct tm* p1 = localtime(&t);
+    printf("");
+    strftime(curtime, 30, "%d%m%y-%H:%M:%S", p1);
+    char log[1000];
+    sprintf(log, "%s::%s::%s::%s::%s", info, curtime, text, path, newPath);
+    printf("");
+	FILE *out = fopen("/home/kali/SinSeiFS.log", "a");  
+    fprintf(out, "%s\n", log);  
+    fclose(out); 
+    printf("");
+}
+
 void writeW(char *text, char* path)
 {
     printf("");
@@ -491,7 +509,7 @@ static int xmp_rename(const char *from, const char *to)
 	if(fromm == 0 && too == 1) encrypt1(fto, 1);
 	else if(fromm == 1 && too != 1) encrypt1(fto, -1);
 	else if(fromm == 2 && too != 1) encrypt1(fto, -1);
-    writeI("RENAME", ffrom);
+    writeRename("RENAME", from, to);
 
 	return 0;
 }
